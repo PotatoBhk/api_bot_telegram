@@ -1,0 +1,8 @@
+python-dotenv
+pyTelegramBotAPI
+xlwt
+openpyxl
+logging
+XlsxWriter
+psycopg2
+tabulate

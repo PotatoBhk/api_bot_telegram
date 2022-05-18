@@ -1,0 +1,5 @@
+/.handler-saves
+db_manager/db_source
+__pycache__
+logfile.log
+.env

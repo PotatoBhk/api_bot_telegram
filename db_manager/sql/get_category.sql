@@ -1,0 +1,1 @@
+SELECT * FROM category WHERE id = %s;

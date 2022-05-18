@@ -1,0 +1,1 @@
+SELECT * FROM products WHERE category_id = %s OFFSET %s LIMIT %s;

@@ -1,0 +1,1 @@
+SELECT * FROM details WHERE purchase_id = %s;
