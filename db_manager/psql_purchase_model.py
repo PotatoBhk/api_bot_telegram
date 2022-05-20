@@ -1,7 +1,7 @@
 from psycopg2 import DatabaseError
 from logging import Logger
-from enum import Enum, unique
 import os
+import re
 
 class Purchase():
     
@@ -21,11 +21,13 @@ class Purchase():
             purchase = cur.fetchone()
             db_manager.commit()
             cur.close()
+            print(purchase)
             self.logger.info("Compra agregada: ", purchase)
-            return True
+            return purchase
         except DatabaseError as error:
+            print(error)
             self.logger.error("Error al agregar compra: ", error)
-            return False
+            return None
         
     def get_purchase(self, serie, db_manager):
         get_purchase = os.path.join(self.sql_folder, "get_purchase.sql")
@@ -68,6 +70,23 @@ class Purchase():
         except DatabaseError as error:
             self.logger.error("Error al obtener compras: ", error)
             return None
+        
+    def get_next_id_purchase(self, db_manager):
+        get_last_purchase = os.path.join(self.sql_folder, "get_purchase_last.sql")
+        with open(get_last_purchase, 'r') as f:
+            sql_get_last_purchase = f.read()
+        try:
+            cur = db_manager.cursor()
+            cur.execute(sql_get_last_purchase)
+            last_purchase = cur.fetchone()
+            cur.close()
+            if last_purchase is None:
+                return "F000000001"
+            print('last_purchase: ', last_purchase[0])
+            return self.generate_id_purchase(last_purchase[0])
+        except DatabaseError as error:
+            self.logger.error("Error al obtener compra: ", error)
+            return None
     
     def add_detail(self, data, db_manager):
         add_detail = os.path.join(self.sql_folder, "add_detail.sql")
@@ -98,3 +117,9 @@ class Purchase():
         except DatabaseError as error:
             self.logger.error("Error al obtener detalles: ", error)
             return None
+        
+    def generate_id_purchase(self, last_id):
+        match = re.match(r"([a-z]+)([0-9]+)", last_id, re.I)
+        items = match.groups()
+        nid = int(items[1]) + 1
+        return items[0] + ("0" * (9-len(str(nid)))) + str(nid)

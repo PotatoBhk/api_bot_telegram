@@ -67,14 +67,7 @@ class Product():
             sql_add_product = f.read()        
         try:            
             cur = db_manager.cursor()
-            cur.execute(sql_add_product, (
-                    data[0], #code
-                    data[1], #name
-                    data[2], #description
-                    data[3], #price
-                    data[4]  #category
-                )
-            )
+            cur.execute(sql_add_product, data)
             product = cur.fetchone()
             db_manager.commit()    
             cur.close()
@@ -92,7 +85,20 @@ class Product():
             cur = db_manager.cursor()
             cur.execute(sql_get_product, (code,))
             product = cur.fetchone()
-            db_manager.commit()
+            cur.close()
+            return product
+        except DatabaseError as error:
+            self.logger.error("Error al obtener producto: ", error)
+            return None
+    
+    def get_product_by_id(self, id, db_manager):
+        get_product = os.path.join(self.sql_folder, "get_product_by_id.sql")
+        with open(get_product, 'r') as f:
+            sql_get_product = f.read()
+        try:
+            cur = db_manager.cursor()
+            cur.execute(sql_get_product, (id,))
+            product = cur.fetchone()
             cur.close()
             return product
         except DatabaseError as error:
@@ -104,15 +110,20 @@ class Product():
         get_products = os.path.join(self.sql_folder, "get_products.sql")
         with open(get_products, 'r') as f:
             sql_get_products = f.read()
+        get_rows = os.path.join(self.sql_folder, "get_products_rows.sql")
+        with open(get_rows, 'r') as f:
+            sql_get_rows = f.read()
         try:
             cur = db_manager.cursor()
             cur.execute(sql_get_products, (offset, 5))
             products = cur.fetchall()
+            cur.execute(sql_get_rows)
+            rows = cur.fetchone()
             cur.close()
-            return products
+            return (products, rows)
         except DatabaseError as error:
             self.logger.error("Error al obtener productos: ", error)
-            return None
+            return (None, 0)
     
     def get_products_by_category(self, page, category, db_manager):
         offset = (page - 1) * 5

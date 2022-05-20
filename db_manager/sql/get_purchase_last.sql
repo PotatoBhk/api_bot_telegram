@@ -1,0 +1,1 @@
+SELECT serie FROM purchases ORDER BY serie DESC LIMIT 1;

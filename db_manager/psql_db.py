@@ -18,7 +18,7 @@ class Database():
                 sql_schema = f.read()
             #Initiate and connect with database   
             self.conn = psycopg2.connect(
-                user = 'admin', 
+                user = 'adminbot', 
                 password = 'mpassword',
                 database = 'telebotdb'
             )
